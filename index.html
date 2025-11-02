@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" 
+          content="width=device-width, 
+                   initial-scale=1.0" />
+    <link rel="stylesheet" 
+          href="style.css" />
+    <title>Travel Expense Tracker</title>
+</head>
+<body>
+    <div class="main">
+        <h1>Travel Expense Tracker</h1>
+        <div class="wrapper">
+        <section class="add-new">
+            <h2>Add</h2>
+            <button class="new-expense">New expense</button>
+            <button class="new-category">New category</button>
+            <form class="new-expense-form">
+                <label for="description">Description</label>
+                <input class="description" id="description" type="text">
+                <label for="category">Category</label>
+                <select class="category" id="category" required>
+                    <option value="Transportation">Transportation</option>
+                    <option value="Housing">Housing</option>
+                    <option value="Food">Food</option>
+                    <option value="Entertainment">Entertainment</option>
+                </select>
+                <label for="amount">Amount</label>
+                <input class="amount" id="amount" type="text" required>
+                <button class="add-new-ex-btn">Add Expense</button>
+            </form>
+            <form class="new-category-form">
+                <label for="name">Name</label>
+                <input class="name" id="name" required>
+                <button class="add-new-cat-btn">Add Category</button>
+            </form>
+        </section>
+        <section class="budget-summary">
+            <h2>Budget Summary</h2>
+            <div class="cards-container">
+                <div class="card" id="transportation">
+                    <span class="title"></span>
+                    <span class="evaluation"></span>
+                    <span class="amount-spent"></span>
+                    <span class="percentage"></span>
+                </div>
+                <div class="card" id="food">
+                    <span class="title"></span>
+                    <span class="evaluation"></span>
+                    <span class="amount-spent"></span>
+                    <span class="percentage"></span>
+                </div>
+                <div class="card" id="housing">
+                    <span class="title"></span>
+                    <span class="evaluation"></span>
+                    <span class="amount-spent"></span>
+                    <span class="percentage"></span>
+                </div>
+                <div class="card" id="entertainment">
+                    <span class="title"></span>
+                    <span class="evaluation"></span>
+                    <span class="amount-spent"></span>
+                    <span class="percentage"></span>
+                </div>
+            </div>
+        </section>
+        </div> 
+        <section class="all-expenses">
+            <button class="expenses-all-btn">Expenses</button>
+            <button class="expenses-cat-btn">By Categories</button>
+            <div class="expenses-all">
+                <table class="expense-table">
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Budget change</th>
+                    </tr>
+                </table>
+                
+            </div>
+            <div class="expenses-by-cat">
+                <div class="table-container">
+                <span class="table-title">Transportation</span>
+                <table class="table-transportation">
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Budget change</th>
+                    </tr>
+                </table>
+                </div>
+
+                <div class="table-container">
+                <span class="table-title">Housing</span>
+                <table class="table-housing">
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Budget change</th>
+                    </tr>
+                </table>
+                </div>
+
+                <div class="table-container">
+                <span class="table-title">Food & Drink</span>
+                <table class="table-food">
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Budget change</th>
+                    </tr>
+                </table>
+                </div>
+
+                <div class="table-container">
+                <span class="table-title">Entertainment</span>
+                <table class="table-entertainment">
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Budget change</th>
+                    </tr>
+                </table>
+                </div>
+
+            </div>
+        </section>
+    </div>
+     <script src="script.js"></script>
+</body>
