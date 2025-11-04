@@ -17,54 +17,42 @@
         <section class="add-new">
             <h2>Add</h2>
             <button class="new-expense">New expense</button>
-            <button class="new-category">New category</button>
+            <button class="manage-categories">Manage categories</button>
             <form class="new-expense-form">
+                <div class="form-group">
                 <label for="description">Description</label>
-                <input class="description" id="description" type="text">
+                <input class="description" id="description" type="text"></div>
+                <div class="form-group">
                 <label for="category">Category</label>
-                <select class="category" id="category" required>
-                    <option value="Transportation">Transportation</option>
-                    <option value="Housing">Housing</option>
-                    <option value="Food">Food</option>
-                    <option value="Entertainment">Entertainment</option>
-                </select>
+                <select class="category" id="category" required></select></div>
+                <div class="form-group">
                 <label for="amount">Amount</label>
-                <input class="amount" id="amount" type="text" required>
-                <button class="add-new-ex-btn">Add Expense</button>
+                <input class="amount" id="amount" type="number" min="0" required></div>
+                <button type="button" class="add-new-ex-btn">Add Expense</button>
             </form>
             <form class="new-category-form">
-                <label for="name">Name</label>
-                <input class="name" id="name" required>
-                <button class="add-new-cat-btn">Add Category</button>
+                <div class="form-group">
+                <label for="name">Add category</label>
+                <input class="name" id="name" placeholder="name"></div>
+
+                <div class="form-group">
+                <label for="budget">Budget amount</label>
+                <input class="budget" id="budget" type="number" min="0" required>
+                </div>
+                <button type="button" class="add-new-cat-btn">Add Category</button>
+
+                  <hr />
+
+                <div class="form-group">
+                <label for="delete-category">Delete category</label>
+                <select class="delete-category" id="delete-category"></select>
+                </div>
+                <button type="button" class="delete-cat-btn">Delete Category</button>
             </form>
         </section>
         <section class="budget-summary">
             <h2>Budget Summary</h2>
             <div class="cards-container">
-                <div class="card" id="transportation">
-                    <span class="title"></span>
-                    <span class="evaluation"></span>
-                    <span class="amount-spent"></span>
-                    <span class="percentage"></span>
-                </div>
-                <div class="card" id="food">
-                    <span class="title"></span>
-                    <span class="evaluation"></span>
-                    <span class="amount-spent"></span>
-                    <span class="percentage"></span>
-                </div>
-                <div class="card" id="housing">
-                    <span class="title"></span>
-                    <span class="evaluation"></span>
-                    <span class="amount-spent"></span>
-                    <span class="percentage"></span>
-                </div>
-                <div class="card" id="entertainment">
-                    <span class="title"></span>
-                    <span class="evaluation"></span>
-                    <span class="amount-spent"></span>
-                    <span class="percentage"></span>
-                </div>
             </div>
         </section>
         </div> 
