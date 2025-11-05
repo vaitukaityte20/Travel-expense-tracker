@@ -145,6 +145,14 @@ table {
   font-size: 0.95em;
 }
 
+table input,
+table select {
+  width: 95%;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 th,
 td {
   text-align: left;
@@ -191,4 +199,22 @@ tr:hover {
   width: 0%;
   background-color: #4caf50; 
   transition: width 0.4s ease, background-color 0.4s ease;
+}
+.total-summary {
+  margin-bottom: 1rem;
+  padding: 0.8rem 1rem;
+  background: #f7f9fb;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.total-summary h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.total-info {
+  color: #555;
+  font-weight: 500;
 }

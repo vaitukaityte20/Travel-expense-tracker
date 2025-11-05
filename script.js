@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
     // Check if category already exists
     const exists = categories.some(
-      (cat) => cat.toLowerCase() === name.toLowerCase()
+      (cat) => cat.name.toLowerCase() === name.toLowerCase()
     );
     if (exists) return alert("This category already exists.");
 
@@ -84,8 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // reset fields
     categoryInput.value = "";
     budgetInput.value = "";
-    // alert the user about successfully added category
-    alert(`Category "${name}" added with budget $${budget}.`);
   });
 
   // take the value of selected category to delete
@@ -93,18 +91,108 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedCat = deleteCategorySelect.value;
   if (!selectedCat) return alert("No category selected.");
 
-  // confirm deletion
-  if (!confirm(`Delete category "${selectedCat}"?`)) return;
-
   // remove selected category from storage list, save and render updated list
     categories = categories.filter((c) => c.name !== selectedCat);
     saveCategories(categories);
     renderCategoryDropdowns();
 
-  // give feedback about successful deletion
-  alert(`Category "${selectedCat}" deleted.`);
+    // Remove summary card for deleted category
+const card = document.getElementById(selectedCat.toLowerCase().replace(/\s+/g, "-"));
+if (card) card.remove();
+
+// Remove any category tables for the deleted category
+const tableContainer = byCategoryContainer.querySelector(`.table-${selectedCat.toLowerCase().replace(/\s+/g, "-")}`)?.closest(".table-container");
+if (tableContainer) tableContainer.remove();
+
+// Also remove related expenses for that category
+expenses = expenses.filter(exp => exp.category !== selectedCat);
+saveExpenses(expenses);
+
+// Refresh main tables and summary
+renderAllExpensesTable();
+renderCategoryTables();
+updateSummaryCards();
 });
 
+// a helper function to refresh the tables
+function renderAllExpensesTable() {
+  const tbody = allExpensesTable.querySelector("tbody");
+  tbody.innerHTML = ""; // clear table
+  expenses.forEach((exp) => {
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td>${exp.date}</td>
+      <td>${exp.description}</td>
+      <td>${exp.category}</td>
+      <td>$${exp.amount.toFixed(2)}</td>
+      <td>${exp.budgetChange}</td>
+      <td>
+        <button class="edit-expense" data-id="${exp.id}">Edit</button>
+        <button class="delete-expense" data-id="${exp.id}">Delete</button>
+      </td>
+    `;
+  });
+}
+
+// a helper function to refresh the expenses by category tables
+function renderCategoryTables() {
+  // clear all category tables first
+  const containers = byCategoryContainer.querySelectorAll(".table-container");
+  containers.forEach((c) => c.remove());
+
+  // group expenses by category
+  const grouped = {};
+  expenses.forEach((exp) => {
+    if (!grouped[exp.category]) grouped[exp.category] = [];
+    grouped[exp.category].push(exp);
+  });
+
+  // render one table per category
+  Object.keys(grouped).forEach((cat) => {
+    const container = document.createElement("div");
+    container.classList.add("table-container");
+
+    const title = document.createElement("span");
+    title.classList.add("table-title");
+    title.textContent = cat;
+
+    const table = document.createElement("table");
+    table.classList.add(`table-${cat.toLowerCase().replace(/\s+/g, "-")}`);
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Budget change</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+
+    const tbody = table.querySelector("tbody");
+    grouped[cat].forEach((exp) => {
+      const row = tbody.insertRow();
+      row.innerHTML = `
+        <td>${exp.date}</td>
+        <td>${exp.description}</td>
+        <td>${exp.category}</td>
+        <td>$${exp.amount.toFixed(2)}</td>
+        <td>${exp.budgetChange}</td>
+        <td>
+          <button class="edit-expense" data-id="${exp.id}" data-category="${cat}">Edit</button>
+          <button class="delete-expense" data-id="${exp.id}" data-category="${cat}">Delete</button>
+        </td>
+      `;
+    });
+
+    container.appendChild(title);
+    container.appendChild(table);
+    byCategoryContainer.appendChild(container);
+  });
+}
 
    // to load existing categories from local storage, default if none
    function loadCategories() {
@@ -175,13 +263,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
    // add expense to appropriate table with all it's data
   function addExpenseRow(table, expense) {
-    const row = table.insertRow(-1);
+    const tbody = table.querySelector("tbody");
+    const row = tbody.insertRow(-1);
     row.innerHTML = `
       <td>${expense.date}</td>
       <td>${expense.description}</td>
       <td>${expense.category}</td>
       <td>$${expense.amount.toFixed(2)}</td>
       <td>${expense.budgetChange}</td>
+      <td>
+        <button class="edit-expense" data-id="${expense.id}">Edit</button>
+        <button class="delete-expense" data-id="${expense.id}">Delete</button>
+      </td>
     `;
   }
 
@@ -201,13 +294,17 @@ document.addEventListener("DOMContentLoaded", () => {
     table = document.createElement("table");
     table.classList.add(`table-${id}`);
     table.innerHTML = `
+    <thead>
       <tr>
         <th>Date</th>
         <th>Description</th>
         <th>Category</th>
         <th>Amount</th>
         <th>Budget change</th>
+        <th>Actions</th>
       </tr>
+      </thead>
+      <tbody></tbody>
     `;
 
     container.appendChild(title);
@@ -232,10 +329,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const budget = category ? category.budget : 0;
 
     card.innerHTML = `
+    <div class="info">
       <span class="title">${categoryName}</span>
       <span class="evaluation">Budget: $${budget.toFixed(2)}</span>
       <span class="amount-spent">Spent: $0.00</span>
       <span class="percentage">0%</span>
+      </div>
       <div class="progress-bar">
         <div class="progress-fill"></div>
       </div>
@@ -254,6 +353,16 @@ document.addEventListener("DOMContentLoaded", () => {
         // if category does not exist, start from 0, otherwise add up the amounts
         totals[ex.category] = (totals[ex.category] || 0) + ex.amount;
     });
+
+    // remove cards for categories with no expenses anymore
+  const existingCards = Array.from(document.querySelectorAll(".cards-container .card"));
+  existingCards.forEach((card) => {
+    const catName = card.querySelector(".title").textContent;
+    const stillExists = totals.hasOwnProperty(catName);
+    if (!stillExists) {
+      card.remove();
+    }
+  });
     // loop throgh each category in totals
     Object.keys(totals).forEach((cat) => {
         // find matching category in the saved list
@@ -282,7 +391,20 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             fill.style.backgroundColor = "#f44336";
         }
-  }); }
+  }); 
+    // Calculate total budget and total spent
+const totalBudget = categories.reduce((sum, c) => sum + c.budget, 0);
+const totalSpent = Object.values(totals).reduce((sum, val) => sum + val, 0);
+const totalRemaining = totalBudget - totalSpent;
+
+// Update total summary section
+const totalInfo = document.querySelector(".total-info");
+if (totalInfo) {
+  totalInfo.textContent = `Total Budget: $${totalBudget.toFixed(2)} | Spent: $${totalSpent.toFixed(2)} | Remaining: $${totalRemaining.toFixed(2)}`;
+}
+
+
+}
 
     // event listener for add new expense button
     addExpenseBtn.addEventListener("click", () => {
@@ -308,6 +430,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const remaining = categoryBudget - totalSpent;
     // prepare new expense object with all needed values for the table input
     const expense = {
+        id: Date.now(), // unique ID
         date,
         description,
         category,
@@ -317,27 +440,112 @@ document.addEventListener("DOMContentLoaded", () => {
     // save new expenses in the local storage
     expenses.push(expense);
     saveExpenses(expenses);
-
-    addExpenseRow(allExpensesTable, expense);
-    const catTable = ensureCategoryTable(category);
-    addExpenseRow(catTable, expense);
-    ensureSummaryCard(category);
+    
+    renderAllExpensesTable();
+    renderCategoryTables();
     updateSummaryCards();
     
     // clean input fields
     descInput.value = "";
     amountInput.value = "";
     categorySelect.selectedIndex = 0;
-
-    alert(`Expense added in "${category}"!`);
   });
     // load saved data from the storage on page refresh
-  expenses.forEach((exp) => {
-    addExpenseRow(allExpensesTable, exp);
-    const catTable = ensureCategoryTable(exp.category);
-    addExpenseRow(catTable, exp);
-  });
+renderAllExpensesTable();
+renderCategoryTables();
+updateSummaryCards();
 
-  updateSummaryCards();
+
+document.body.addEventListener("click", (e) => {
+  const isEdit = e.target.classList.contains("edit-expense");
+  const isDelete = e.target.classList.contains("delete-expense");
+  const isSave = e.target.classList.contains("save-expense");
+  const isCancel = e.target.classList.contains("cancel-edit");
+
+  if (!isEdit && !isDelete && !isSave && !isCancel) return;
+
+  const row = e.target.closest("tr");
+  if (!row) return;
+  // find the expense using its unique id
+  const expenseId = +e.target.dataset.id;
+  const expense = expenses.find((ex) => ex.id === expenseId);
+  if (!expense) return; 
+
+  // DELETE
+  if (isDelete) {
+    if (confirm("Delete this expense?")) {
+      expenses = expenses.filter(ex => ex.id !== expenseId);
+      saveExpenses(expenses);
+      renderAllExpensesTable();
+      renderCategoryTables();
+      updateSummaryCards();
+    }
+    return;
+  }
+
+  // EDIT INLINE
+  if (isEdit) {
+    const descCell = row.children[1];
+    const catCell = row.children[2];
+    const amtCell = row.children[3];
+    const actionsCell = row.children[5];
+
+    descCell.innerHTML = `<input type="text" value="${expense.description}" class="edit-desc">`;
+
+    const select = document.createElement("select");
+    categories.forEach((cat) => {
+      const opt = document.createElement("option");
+      opt.value = cat.name;
+      opt.textContent = cat.name;
+      if (cat.name === expense.category) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.classList.add("edit-cat");
+    catCell.innerHTML = "";
+    catCell.appendChild(select);
+
+    amtCell.innerHTML = `<input type="number" step="0.01" value="${expense.amount}" class="edit-amt">`;
+
+    actionsCell.innerHTML = `
+      <button class="save-expense" data-id="${expense.id}" data-category="${expense.category}">Save</button>
+      <button class="cancel-edit" data-id="${expense.id}" data-category="${expense.category}">Cancel</button>
+    `;
+  }
+
+  // SAVE EDIT
+  if (isSave) {
+    const desc = row.querySelector(".edit-desc").value.trim();
+    const cat = row.querySelector(".edit-cat").value;
+    const amt = parseFloat(row.querySelector(".edit-amt").value);
+    if (!desc || !cat || isNaN(amt)) return alert("Please fill all fields correctly.");
+
+    const expense = expenses.find(ex => ex.id === expenseId);
+    expense.description = desc;
+    expense.category = cat;
+    expense.amount = amt;
+
+    const categoryData = categories.find((c) => c.name === cat);
+    const spentBefore = expenses
+      .filter((e) => e.category === cat && e.id !== expenseId)
+      .reduce((sum, e) => sum + e.amount, 0);
+    const remaining = categoryData ? categoryData.budget - (spentBefore + amt) : 0;
+    expense.budgetChange = `$${remaining.toFixed(2)} left`;
+
+    saveExpenses(expenses);
+    renderAllExpensesTable();
+    renderCategoryTables();
+    updateSummaryCards();
+  }
+
+  // CANCEL EDIT
+  if (isCancel) {
+    renderAllExpensesTable();
+    renderCategoryTables();
+    updateSummaryCards();
+  }
+});
+renderAllExpensesTable();
+renderCategoryTables();
+updateSummaryCards();
 });
 
