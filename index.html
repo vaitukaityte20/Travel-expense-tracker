@@ -16,8 +16,10 @@
         <div class="wrapper">
         <section class="add-new">
             <h2>Add</h2>
-            <button class="new-expense">New expense</button>
-            <button class="manage-categories">Manage categories</button>
+            <div class="button-group">
+                <button class="new-expense">New expense</button>
+                <button class="manage-categories">Manage categories</button>
+            </div>
             <form class="new-expense-form">
                 <div class="form-group">
                 <label for="description">Description</label>
@@ -87,5 +89,16 @@
             </div>
         </section>
     </div>
+    <div class="modal-overlay" id="confirmModal">
+  <div class="modal-content">
+    <h3>Are you sure?</h3>
+    <p>This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button id="confirmDeleteBtn">Yes, Delete</button>
+      <button id="cancelDeleteBtn" class="cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="feedback-container" id="feedbackContainer"></div>
      <script src="script.js"></script>
 </body>

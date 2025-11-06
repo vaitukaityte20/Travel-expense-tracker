@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
     categories.push(newCategory);
     saveCategories(categories);
     renderCategoryDropdowns();
-
+    showFeedback(`Category "${name}" added successfully!`);
     // reset fields
     categoryInput.value = "";
     budgetInput.value = "";
@@ -90,29 +90,92 @@ document.addEventListener("DOMContentLoaded", () => {
   deleteCategoryBtn.addEventListener("click", () => {
   const selectedCat = deleteCategorySelect.value;
   if (!selectedCat) return alert("No category selected.");
+  else { showConfirmation(
+  `Are you sure you want to delete "${selectedCat}"?`,
+  () => deleteCategory(selectedCat)
+);}
 
+});
+
+
+// a helper to delete a category
+function deleteCategory(category) {
   // remove selected category from storage list, save and render updated list
-    categories = categories.filter((c) => c.name !== selectedCat);
+    categories = categories.filter((c) => c.name !== category);
     saveCategories(categories);
     renderCategoryDropdowns();
 
     // Remove summary card for deleted category
-const card = document.getElementById(selectedCat.toLowerCase().replace(/\s+/g, "-"));
+const card = document.getElementById(category.toLowerCase().replace(/\s+/g, "-"));
 if (card) card.remove();
 
 // Remove any category tables for the deleted category
-const tableContainer = byCategoryContainer.querySelector(`.table-${selectedCat.toLowerCase().replace(/\s+/g, "-")}`)?.closest(".table-container");
+const tableContainer = byCategoryContainer.querySelector(`.table-${category.toLowerCase().replace(/\s+/g, "-")}`)?.closest(".table-container");
 if (tableContainer) tableContainer.remove();
 
 // Also remove related expenses for that category
-expenses = expenses.filter(exp => exp.category !== selectedCat);
+expenses = expenses.filter(exp => exp.category !== category);
 saveExpenses(expenses);
 
 // Refresh main tables and summary
 renderAllExpensesTable();
 renderCategoryTables();
 updateSummaryCards();
-});
+showFeedback(`Category "${category}" deleted successfully!`);
+}
+
+// a helper function to display feedback for the user upon successful action
+function showFeedback(message, type = "success") {
+  const container = document.getElementById("feedbackContainer");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = `feedback feedback-${type}`;
+  toast.textContent = message;
+
+  container.appendChild(toast);
+
+  // Fade in
+  setTimeout(() => toast.classList.add("visible"), 100);
+
+  // Auto remove after 3s
+  setTimeout(() => {
+    toast.classList.remove("visible");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// a helper to show a deletion cofirmation modal on the screen 
+function showConfirmation(message, onConfirm) {
+  const modal = document.getElementById('confirmModal');
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  const cancelBtn = document.getElementById('cancelDeleteBtn');
+  const text = modal.querySelector('p');
+
+  text.textContent = message;
+  modal.style.display = 'flex';
+
+  // Clean up previous listeners
+  const newConfirm = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+
+  const newCancel = cancelBtn.cloneNode(true);
+  cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+  newConfirm.addEventListener('click', () => {
+    modal.style.display = 'none';
+    onConfirm(); // execute passed function
+  });
+
+  newCancel.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  // Close on overlay click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+}
 
 // a helper function to refresh the tables
 function renderAllExpensesTable() {
@@ -121,11 +184,11 @@ function renderAllExpensesTable() {
   expenses.forEach((exp) => {
     const row = tbody.insertRow();
     row.innerHTML = `
-      <td>${exp.date}</td>
-      <td>${exp.description}</td>
-      <td>${exp.category}</td>
-      <td>$${exp.amount.toFixed(2)}</td>
-      <td>${exp.budgetChange}</td>
+      <td data-label="Date">${exp.date}</td>
+      <td data-label="Description">${exp.description}</td>
+      <td data-label="Category">${exp.category}</td>
+      <td data-label="Amount">$${exp.amount.toFixed(2)}</td>
+      <td data-label="Budget Change">${exp.budgetChange}</td>
       <td>
         <button class="edit-expense" data-id="${exp.id}">Edit</button>
         <button class="delete-expense" data-id="${exp.id}">Delete</button>
@@ -176,11 +239,11 @@ function renderCategoryTables() {
     grouped[cat].forEach((exp) => {
       const row = tbody.insertRow();
       row.innerHTML = `
-        <td>${exp.date}</td>
-        <td>${exp.description}</td>
-        <td>${exp.category}</td>
-        <td>$${exp.amount.toFixed(2)}</td>
-        <td>${exp.budgetChange}</td>
+        <td data-label="Date">${exp.date}</td>
+        <td data-label="Description">${exp.description}</td>
+        <td data-label="Category">${exp.category}</td>
+        <td data-label="Amount">$${exp.amount.toFixed(2)}</td>
+        <td data-label="Budget Change">${exp.budgetChange}</td>
         <td>
           <button class="edit-expense" data-id="${exp.id}" data-category="${cat}">Edit</button>
           <button class="delete-expense" data-id="${exp.id}" data-category="${cat}">Delete</button>
@@ -261,58 +324,6 @@ function renderCategoryTables() {
 
   let expenses = loadExpenses();
 
-   // add expense to appropriate table with all it's data
-  function addExpenseRow(table, expense) {
-    const tbody = table.querySelector("tbody");
-    const row = tbody.insertRow(-1);
-    row.innerHTML = `
-      <td>${expense.date}</td>
-      <td>${expense.description}</td>
-      <td>${expense.category}</td>
-      <td>$${expense.amount.toFixed(2)}</td>
-      <td>${expense.budgetChange}</td>
-      <td>
-        <button class="edit-expense" data-id="${expense.id}">Edit</button>
-        <button class="delete-expense" data-id="${expense.id}">Delete</button>
-      </td>
-    `;
-  }
-
-  // check if table for the expense category (parameter) exits, if not, create new table
-    function ensureCategoryTable(categoryName) {
-    const id = categoryName.toLowerCase().replace(/\s+/g, "-");
-    let table = document.querySelector(`.table-${id}`);
-    if (table) return table;
-
-    const container = document.createElement("div");
-    container.classList.add("table-container");
-
-    const title = document.createElement("span");
-    title.classList.add("table-title");
-    title.textContent = categoryName;
-
-    table = document.createElement("table");
-    table.classList.add(`table-${id}`);
-    table.innerHTML = `
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Category</th>
-        <th>Amount</th>
-        <th>Budget change</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody></tbody>
-    `;
-
-    container.appendChild(title);
-    container.appendChild(table);
-    byCategoryContainer.appendChild(container);
-
-    return table;
-  }
 
   // check if a summary card for the expense category (parameter) exits, if not, create new card
     function ensureSummaryCard(categoryName) {
@@ -444,7 +455,7 @@ if (totalInfo) {
     renderAllExpensesTable();
     renderCategoryTables();
     updateSummaryCards();
-    
+    showFeedback(`Expense "${description}" added under ${category}.`);
     // clean input fields
     descInput.value = "";
     amountInput.value = "";
@@ -473,15 +484,17 @@ document.body.addEventListener("click", (e) => {
 
   // DELETE
   if (isDelete) {
-    if (confirm("Delete this expense?")) {
-      expenses = expenses.filter(ex => ex.id !== expenseId);
+    showConfirmation(
+  "Are you sure you want to delete this expense?",
+  () => {
+    expenses = expenses.filter(ex => ex.id !== expenseId);
       saveExpenses(expenses);
       renderAllExpensesTable();
       renderCategoryTables();
       updateSummaryCards();
-    }
-    return;
-  }
+      showFeedback(`Expense "${expense.description}" deleted successfully.`);
+    return;}
+);}
 
   // EDIT INLINE
   if (isEdit) {
@@ -535,6 +548,7 @@ document.body.addEventListener("click", (e) => {
     renderAllExpensesTable();
     renderCategoryTables();
     updateSummaryCards();
+    showFeedback(`Expense "${expense.description}"updated successfully.`);
   }
 
   // CANCEL EDIT

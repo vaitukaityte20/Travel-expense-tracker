@@ -6,6 +6,7 @@ body {
   font-family: "Segoe UI", Arial, sans-serif;
   background-color: #f9fafb;
   margin: 0;
+  padding: 0;
   padding: 2em;
   color: #333;
 }
@@ -23,6 +24,7 @@ h1 {
 .wrapper {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 2em;
   justify-content: center;
   margin-bottom: 2em;
@@ -32,10 +34,18 @@ h1 {
 .budget-summary {
   flex: 1 1 350px;
   max-width: 500px;
+  align-self: flex-start;
   background: #75acb4;
   padding: 1.5em;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7em;
+  justify-content: flex-start;
+  margin-bottom: 1em;
 }
 
 .add-new h2,
@@ -49,12 +59,13 @@ button {
   background-color: #0078d7;
   color: #fff;
   border: none;
-  padding: 0.6em 1em;
+  padding: 0.6em 0.9em;
   border-radius: 6px;
   cursor: pointer;
   margin-right: 0.5em;
   transition: background-color 0.3s ease;
 }
+
 hr {
     margin: 1.5em 0em 1.5em 0em;
 }
@@ -68,26 +79,30 @@ button.active {
 form {
   display: flex;
   flex-direction: column;
-  gap: 1em;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
   margin-top: 1em;
 }
 
 .form-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   margin-bottom: 1em;
 }
 
 .form-group label {
-  margin-bottom: 0.3em;
+  width: 30%;
+  margin-bottom: 0;
   font-size: 0.9em;
   color: #444; 
 }
 
 .form-group input,
 .form-group select {
-  width: 100%;
-  padding: 0.6em;
+  width: 70%;
+  padding: 0.5em 0.6em;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1em;
@@ -112,6 +127,13 @@ form {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  text-align: left;
+  flex: 1 1 220px;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.card info {
   text-align: left;
 }
 
@@ -141,8 +163,8 @@ form {
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1em;
-  font-size: 0.95em;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
 }
 
 table input,
@@ -156,7 +178,7 @@ table select {
 th,
 td {
   text-align: left;
-  padding: 0.75em;
+  padding: 0.6rem;
   border-bottom: 1px solid #ddd;
 }
 
@@ -171,8 +193,9 @@ tr:hover {
 }
 
 .table-container {
-  margin-top: 2em;
+  overflow-x: auto;
 }
+
 
 .table-title {
   font-weight: bold;
@@ -217,4 +240,219 @@ tr:hover {
 .total-info {
   color: #555;
   font-weight: 500;
+}
+
+/* --- Modal Overlay --- */
+.modal-overlay {
+  display: none; /* hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* --- Modal Box --- */
+.modal-content {
+  background-color: #fff;
+  padding: 1.5rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  text-align: center;
+  max-width: 320px;
+  width: 90%;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.modal-content p {
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+/* --- Buttons --- */
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.modal-actions button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+#confirmDeleteBtn {
+  background-color: #d9534f;
+  color: white;
+}
+
+#confirmDeleteBtn:hover {
+  background-color: #c9302c;
+}
+
+#cancelDeleteBtn {
+  background-color: #e4e4e4;
+  color: #333;
+}
+
+#cancelDeleteBtn:hover {
+  background-color: #d2d2d2;
+}
+
+.feedback-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999;
+}
+
+.feedback {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  padding: 0.8em 1.2em;
+  border-radius: 6px;
+  font-size: 0.95em;
+  color: #fff;
+  min-width: 200px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.feedback.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feedback-success {
+  background-color: #4caf50;
+}
+
+.feedback-error {
+  background-color: #f44336;
+}
+
+.feedback-info {
+  background-color: #2196f3;
+}
+@media (max-width: 600px) {
+  /* Tables become card-like on small screens */
+  table, thead, tbody, th, td, tr {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tr {
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    padding: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  td {
+    border: none;
+    display: flex;
+    flex-direction: column; /* stack label + value vertically */
+    align-items: flex-start;
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 0.25em;
+    text-transform: capitalize;
+  }
+
+  td:last-child {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.5em;
+  }
+
+    td:last-child::before {
+    content: "";
+  }
+
+  /* Buttons inside table */
+  td button {
+    flex: 1 1 auto;
+    padding: 0.4em 0.6em;
+    font-size: 0.9em;
+  }
+
+  /* Forms */
+  form {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .form-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .form-group label {
+    width: 100%;
+    padding-bottom: 0.3em;
+    font-size: 0.95em;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+  }
+
+  .add-new,
+  .budget-summary,
+  .all-expenses {
+    padding: 1em;
+    width: 100%;
+  }
+
+  .button-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+
+  /* Cards grid */
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  /* Headings and spacing */
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .main {
+    padding: 0.5em;
+  }
 }
