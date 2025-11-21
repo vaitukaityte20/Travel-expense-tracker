@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 };
 
 // hide forms upon loading the page
-  expenseForm.style.display = "none";
+  expenseForm.style.display = "block";
   categoryForm.style.display = "none";
   expensesByCat.style.display = "none";
   expensesByCat.style.display = "none";
