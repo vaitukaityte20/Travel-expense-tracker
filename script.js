@@ -145,7 +145,7 @@ function showFeedback(message, type = "success") {
   }, 3000);
 }
 
-// a helper to show a deletion cofirmation modal on the screen 
+// a helper to show a deletion confirmation modal on the screen 
 function showConfirmation(message, onConfirm) {
   const modal = document.getElementById('confirmModal');
   const confirmBtn = document.getElementById('confirmDeleteBtn');
@@ -374,7 +374,7 @@ function renderCategoryTables() {
       card.remove();
     }
   });
-    // loop throgh each category in totals
+    // loop through each category in totals
     Object.keys(totals).forEach((cat) => {
         // find matching category in the saved list
         const category = categories.find((c) => c.name === cat);
@@ -411,7 +411,14 @@ const totalRemaining = totalBudget - totalSpent;
 // Update total summary section
 const totalInfo = document.querySelector(".total-info");
 if (totalInfo) {
-  totalInfo.textContent = `Total Budget: $${totalBudget.toFixed(2)} | Spent: $${totalSpent.toFixed(2)} | Remaining: $${totalRemaining.toFixed(2)}`;
+  totalInfo.innerHTML = `
+  <span class="budget-info-name">Budget: </span>
+  <span class="budget-info-value">$${totalBudget.toFixed(2)}</span>
+  <span class="budget-info-name">Spent: </span>
+  <span class="budget-info-value">$${totalSpent.toFixed(2)}</span>
+  <span class="budget-info-name">Remaining: </span>
+  <span class="budget-info-value">$${totalRemaining.toFixed(2)}</span>
+`;
 }
 
 

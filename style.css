@@ -270,6 +270,20 @@ tr:hover {
 .total-info {
   font-weight: 500;
   color: #e2e8f0;
+  display: grid;
+  grid-template-columns: 150px 1fr; /* you can adjust 150px */
+  row-gap: 8px;
+}
+.budget-info-name {
+  font-weight: 600;
+  background-color: rgb(11, 9, 19);
+  padding: 0.5em 1em;
+}
+
+.budget-info-value {
+  font-weight: 700;
+  background-color: darkslateblue;
+ padding: 0.5em 1em;
 }
 
 /* --- Modal Overlay --- */
